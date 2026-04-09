@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const TOKEN = 'TOKEN_DARI_BOTFATHER'; // GANTI INI
+const TOKEN = 8457591796:AAFxRX0OREr2DpyFmEKw1OWwGrOo-MaK59o
 
 app.use(express.json());
 
