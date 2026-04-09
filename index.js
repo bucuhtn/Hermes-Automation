@@ -1,64 +1,42 @@
+const express = require('express');
 const axios = require('axios');
 require('dotenv').config();
 
-/**
- * Hermes Automation Script
- * Template untuk automation di GitHub Codespaces
- */
+const app = express();
+const PORT = process.env.PORT || 3000;
+const TOKEN = 'TOKEN_DARI_BOTFATHER'; // GANTI INI
 
-class HermesAutomation {
-  constructor() {
-    this.name = 'Hermes Bot';
-    this.version = '1.0.0';
-  }
+app.use(express.json());
 
-  async init() {
-    console.log(`🚀 ${this.name} v${this.version} started`);
-    console.log('Environment:', process.env.NODE_ENV || 'development');
-    
-    // Contoh: Fetch data dari API
-    await this.fetchExample();
-    
-    // Contoh: Setup server (opsional)
-    this.setupServer();
-  }
+// Telegram API
+const telegramApi = axios.create({
+baseURL: `https://api.telegram.org/bot${TOKEN}`
+});
 
-  async fetchExample() {
-    try {
-      // Contoh fetch data - ganti dengan API yang kamu butuhkan
-      console.log('📡 Fetching data...');
-      // const response = await axios.get('https://api.example.com/data');
-      // console.log('Data:', response.data);
-    } catch (error) {
-      console.error('Error fetching:', error.message);
-    }
-  }
+// Webhook endpoint
+app.post('/webhook', async (req, res) => {
+const { message } = req.body;
+if (!message) return res.sendStatus(200);
 
-  setupServer() {
-    const express = require('express');
-    const app = express();
-    const PORT = process.env.PORT || 3000;
+const chatId = message.chat.id;
+const text = message.text;
 
-    app.get('/', (req, res) => {
-      res.json({
-        name: this.name,
-        version: this.version,
-        status: 'running',
-        timestamp: new Date().toISOString()
-      });
-    });
-
-    app.get('/health', (req, res) => {
-      res.json({ status: 'ok' });
-    });
-
-    app.listen(PORT, () => {
-      console.log(`🌐 Server running on port ${PORT}`);
-      console.log(`🔗 http://localhost:${PORT}`);
-    });
-  }
+if (text === '/start') {
+await telegramApi.post('/sendMessage', {
+chat_id: chatId,
+text: '👋 Halo Juragan! Hermes siap!'
+});
 }
 
-// Run
-const bot = new HermesAutomation();
-bot.init().catch(console.error);
+res.sendStatus(200);
+});
+
+// Health check
+app.get('/', (req, res) => {
+res.json({ message: 'Hermes running!', telegram: TOKEN ? 'connected' : 'disconnected' });
+});
+
+app.listen(PORT, () => {
+console.log(`🚀 Server: http://localhost:${PORT}`);
+console.log('🤖 Telegram bot active');
+});
